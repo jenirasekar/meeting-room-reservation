@@ -9,16 +9,19 @@ const api = axios.create({
 })
 
 // Response interceptor — handle auth errors
-// Bug 7 fix: use dynamic import() instead of require() in ES module context
 api.interceptors.response.use(
   response => response,
   async error => {
-    if (error.response?.status === 401) {
+    const requestUrl = error.config?.url || ''
+    const isAuthEndpoint = requestUrl.includes('/auth/logout') || requestUrl.includes('/auth/login') || requestUrl.includes('/auth/me')
+
+    // Never trigger logout/redirect logic from a failed auth-endpoint request itself —
+    // that's what was causing the infinite /auth/logout loop.
+    if (error.response?.status === 401 && !isAuthEndpoint) {
       const { useAuthStore } = await import('../stores/auth')
-      // Only call if Pinia is already active (i.e. inside a component context)
       try {
         const auth = useAuthStore()
-        auth.logout()
+        auth.user = null // clear local state directly, skip calling logout() API again
       } catch (e) {
         // Pinia not ready yet (e.g. during initial fetchUser), ignore
       }

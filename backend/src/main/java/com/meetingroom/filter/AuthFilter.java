@@ -5,6 +5,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.util.Set;
@@ -15,7 +16,9 @@ public class AuthFilter implements Filter {
     // Fully public — no auth needed
     private static final Set<String> PUBLIC_PATHS = Set.of(
         "/api/auth/register",
-        "/api/auth/login"
+        "/api/auth/login",
+        "/api/auth/logout",
+        "/api/auth/me"
     );
 
     // Public for GET only (browsing rooms)
@@ -58,9 +61,8 @@ public class AuthFilter implements Filter {
         }
 
         // All other paths require authentication
-        User user = (User) httpReq.getSession(false) != null
-            ? (User) httpReq.getSession(false).getAttribute("user")
-            : null;
+        HttpSession session = httpReq.getSession(false);
+        User user = (session != null) ? (User) session.getAttribute("user") : null;
 
         if (user == null) {
             httpRes.setContentType("application/json");

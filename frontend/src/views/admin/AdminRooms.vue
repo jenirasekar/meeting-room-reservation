@@ -2,8 +2,11 @@
 import { ref, onMounted } from 'vue'
 import { useRoomsStore } from '../../stores/rooms'
 import { equipmentAPI } from '../../api'
+import { useToastStore } from '../../stores/toast'
+import AppIcon from '../../components/AppIcon.vue'
 
 const roomsStore = useRoomsStore()
+const toast = useToastStore()
 
 const showForm = ref(false)
 const editingRoom = ref(null)
@@ -16,6 +19,7 @@ const formSubmitting = ref(false)
 // Equipment management
 const showEquipForm = ref(false)
 const equipRoomId = ref(0)
+const equipRoomName = ref('')
 const equipForm = ref({ name: '', quantity: 1 })
 
 onMounted(() => {
@@ -60,6 +64,7 @@ async function handleSave() {
     }
     if (result.success) {
       showForm.value = false
+      toast.success(editingRoom.value ? 'Room updated!' : 'Room created!')
       await roomsStore.fetchRooms()
     } else {
       formError.value = result.message || 'Failed to save'
@@ -72,15 +77,18 @@ async function handleSave() {
 }
 
 async function handleDelete(room) {
-  if (!confirm(`Delete room "${room.name}"?`)) return
+  if (!confirm(`Delete room "${room.name}"? This cannot be undone.`)) return
   const result = await roomsStore.deleteRoom(room.id)
-  if (!result.success) {
-    alert(result.message || 'Failed to delete')
+  if (result.success) {
+    toast.success('Room deleted')
+  } else {
+    toast.error(result.message || 'Failed to delete')
   }
 }
 
 function openEquipManager(room) {
   equipRoomId.value = room.id
+  equipRoomName.value = room.name
   showEquipForm.value = true
   roomsStore.fetchRoom(room.id)
 }
@@ -89,12 +97,14 @@ async function addEquipment() {
   if (!equipForm.value.name.trim()) return
   await equipmentAPI.add(equipRoomId.value, equipForm.value)
   equipForm.value = { name: '', quantity: 1 }
+  toast.success('Equipment added')
   await roomsStore.fetchRoom(equipRoomId.value)
 }
 
 async function deleteEquipment(id) {
-  if (!confirm('Delete this equipment?')) return
+  if (!confirm('Remove this equipment?')) return
   await equipmentAPI.delete(id)
+  toast.info('Equipment removed')
   await roomsStore.fetchRoom(equipRoomId.value)
 }
 </script>
@@ -103,119 +113,197 @@ async function deleteEquipment(id) {
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <div class="flex items-center justify-between mb-8">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Manage Rooms</h1>
-        <p class="text-gray-500 mt-1">Add, edit, or remove meeting rooms</p>
+        <h1 class="text-2xl font-bold text-surface-900">Manage Rooms</h1>
+        <p class="text-surface-500 mt-1">Add, edit, or remove meeting rooms</p>
       </div>
-      <button @click="openCreateForm" class="btn-primary">+ Add Room</button>
+      <button @click="openCreateForm" class="btn-primary">
+        <AppIcon icon="plus" :size="18" />
+        Add Room
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div v-if="roomsStore.loading" class="text-center py-12">
+      <div class="inline-block w-8 h-8 border-2 border-surface-300 border-t-primary-500 rounded-full animate-spin" />
+      <p class="text-surface-500 mt-3">Loading rooms...</p>
+    </div>
+
+    <!-- Empty state -->
+    <div v-else-if="!roomsStore.rooms.length" class="text-center py-16">
+      <div class="w-20 h-20 rounded-2xl bg-surface-100 flex items-center justify-center mx-auto mb-4">
+        <AppIcon icon="building" :size="36" class="text-surface-300" />
+      </div>
+      <h3 class="text-lg font-semibold text-surface-700 mb-1">No rooms yet</h3>
+      <p class="text-surface-400 mb-4">Create your first meeting room to get started.</p>
+      <button @click="openCreateForm" class="btn-primary">
+        <AppIcon icon="plus" :size="16" />
+        Add Room
+      </button>
     </div>
 
     <!-- Room list -->
-    <div v-if="roomsStore.loading" class="text-center py-12">
-      <p class="text-gray-500">Loading...</p>
-    </div>
-
-    <div v-else class="space-y-4">
-      <div v-for="room in roomsStore.rooms" :key="room.id" class="card">
+    <div v-else class="space-y-3">
+      <div
+        v-for="room in roomsStore.rooms"
+        :key="room.id"
+        class="card hover:shadow-soft-lg transition-all"
+      >
         <div class="flex flex-col sm:flex-row items-start justify-between gap-4">
-          <div class="flex-1">
+          <div class="flex-1 min-w-0">
             <div class="flex items-center gap-3 mb-2">
-              <h3 class="text-lg font-semibold">{{ room.name }}</h3>
-              <span :class="room.status === 'available' ? 'badge bg-green-100 text-green-700' : 'badge bg-red-100 text-red-700'">
+              <h3 class="text-lg font-semibold text-surface-900">{{ room.name }}</h3>
+              <span
+                :class="[
+                  'badge text-[11px]',
+                  room.status === 'available'
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                    : 'bg-red-50 text-red-700 border-red-200'
+                ]"
+              >
+                <span :class="room.status === 'available' ? 'status-dot-available' : 'status-dot-unavailable'" />
                 {{ room.status }}
               </span>
             </div>
-            <p class="text-sm text-gray-500">
-              📍 {{ room.location || 'N/A' }} · 👥 {{ room.capacity }} people
+            <p class="text-sm text-surface-500 flex items-center gap-1.5">
+              <AppIcon icon="location-marker" :size="13" class="text-surface-400" />
+              {{ room.location || 'No location' }}
+              <span class="text-surface-300 mx-1">·</span>
+              <AppIcon icon="users" :size="13" class="text-surface-400" />
+              {{ room.capacity }} people
             </p>
-            <p class="text-sm text-gray-400 mt-1">{{ room.description || 'No description' }}</p>
+            <p v-if="room.description" class="text-sm text-surface-400 mt-1 line-clamp-1">
+              {{ room.description }}
+            </p>
           </div>
           <div class="flex gap-2 shrink-0">
-            <button @click="openEquipManager(room)" class="btn-secondary btn-sm">Equipment</button>
-            <button @click="openEditForm(room)" class="btn-secondary btn-sm">Edit</button>
-            <button @click="handleDelete(room)" class="btn-danger btn-sm">Delete</button>
+            <button @click="openEquipManager(room)" class="btn-ghost btn-sm">
+              <AppIcon icon="settings" :size="14" />
+              <span class="hidden sm:inline">Equipment</span>
+            </button>
+            <button @click="openEditForm(room)" class="btn-secondary btn-sm">
+              <AppIcon icon="pencil" :size="14" />
+              <span class="hidden sm:inline">Edit</span>
+            </button>
+            <button @click="handleDelete(room)" class="btn-danger btn-sm">
+              <AppIcon icon="trash" :size="14" />
+              <span class="hidden sm:inline">Delete</span>
+            </button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Room create/edit modal -->
-    <div v-if="showForm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
-        <h2 class="text-xl font-semibold mb-4">
-          {{ editingRoom ? 'Edit Room' : 'Add Room' }}
-        </h2>
-        <form @submit.prevent="handleSave" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
-            <input v-model="form.name" type="text" class="input-field" required />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-            <input v-model="form.location" type="text" class="input-field" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Capacity</label>
-            <input v-model.number="form.capacity" type="number" min="1" class="input-field" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea v-model="form.description" class="input-field" rows="3"></textarea>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select v-model="form.status" class="input-field">
-              <option value="available">Available</option>
-              <option value="unavailable">Unavailable</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-            <input v-model="form.imageUrl" type="url" class="input-field" placeholder="https://..." />
-          </div>
+    <Teleport to="body">
+      <Transition icon="modal-backdrop">
+        <div v-if="showForm" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="showForm = false">
+          <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          <Transition icon="modal-content">
+            <div v-if="showForm" class="relative bg-white rounded-2xl shadow-soft-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+              <div class="flex items-center justify-between mb-5">
+                <h2 class="text-xl font-semibold text-surface-900">
+                  {{ editingRoom ? 'Edit Room' : 'Add Room' }}
+                </h2>
+                <button @click="showForm = false" class="p-1.5 rounded-lg hover:bg-surface-100 transition-colors">
+                  <AppIcon icon="x-mark" :size="18" class="text-surface-400" />
+                </button>
+              </div>
 
-          <div v-if="formError" class="text-sm text-red-600 bg-red-50 rounded-lg p-3">
-            {{ formError }}
-          </div>
+              <form @submit.prevent="handleSave" class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-surface-700 mb-1.5">Name <span class="text-red-400">*</span></label>
+                  <input v-model="form.name" type="text" class="input-field" required />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-surface-700 mb-1.5">Location</label>
+                  <input v-model="form.location" type="text" class="input-field" placeholder="e.g., Floor 3, Building A" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-surface-700 mb-1.5">Capacity</label>
+                  <input v-model.number="form.capacity" type="number" min="1" class="input-field" />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-surface-700 mb-1.5">Description</label>
+                  <textarea v-model="form.description" class="input-field" rows="3" placeholder="Brief description of the room..."></textarea>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-surface-700 mb-1.5">Status</label>
+                  <select v-model="form.status" class="input-field">
+                    <option value="available">Available</option>
+                    <option value="unavailable">Unavailable</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-surface-700 mb-1.5">Image URL</label>
+                  <input v-model="form.imageUrl" type="url" class="input-field" placeholder="https://example.com/room.jpg" />
+                </div>
 
-          <div class="flex gap-3 pt-2">
-            <button type="submit" class="btn-primary flex-1" :disabled="formSubmitting">
-              {{ formSubmitting ? 'Saving...' : 'Save' }}
-            </button>
-            <button type="button" class="btn-secondary" @click="showForm = false">Cancel</button>
-          </div>
-        </form>
-      </div>
-    </div>
+                <div v-if="formError" class="flex items-start gap-2 text-sm text-red-700 bg-red-50 rounded-xl p-3 border border-red-200">
+                  <AppIcon icon="exclamation-circle" :size="16" class="shrink-0 mt-0.5" />
+                  {{ formError }}
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                  <button type="submit" class="btn-primary flex-1" :disabled="formSubmitting">
+                    <span v-if="formSubmitting" class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    {{ formSubmitting ? 'Saving...' : 'Save' }}
+                  </button>
+                  <button type="button" class="btn-secondary" @click="showForm = false">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </Transition>
+        </div>
+      </Transition>
+    </Teleport>
 
     <!-- Equipment manager modal -->
-    <div v-if="showEquipForm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
-        <h2 class="text-xl font-semibold mb-4">Manage Equipment</h2>
+    <Teleport to="body">
+      <Transition icon="modal-backdrop">
+        <div v-if="showEquipForm" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="showEquipForm = false">
+          <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          <Transition icon="modal-content">
+            <div v-if="showEquipForm" class="relative bg-white rounded-2xl shadow-soft-xl w-full max-w-md p-6">
+              <div class="flex items-center justify-between mb-5">
+                <h2 class="text-xl font-semibold text-surface-900">Equipment — {{ equipRoomName }}</h2>
+                <button @click="showEquipForm = false" class="p-1.5 rounded-lg hover:bg-surface-100 transition-colors">
+                  <AppIcon icon="x-mark" :size="18" class="text-surface-400" />
+                </button>
+              </div>
 
-        <!-- Current equipment -->
-        <div v-if="roomsStore.equipment.length" class="space-y-2 mb-4">
-          <div v-for="item in roomsStore.equipment" :key="item.id"
-               class="flex items-center justify-between bg-gray-50 rounded-lg p-3">
-            <div>
-              <span class="font-medium">{{ item.name }}</span>
-              <span class="text-gray-500 ml-2">x{{ item.quantity }}</span>
+              <!-- Current equipment -->
+              <div v-if="roomsStore.equipment.length" class="space-y-2 mb-4">
+                <div
+                  v-for="item in roomsStore.equipment"
+                  :key="item.id"
+                  class="flex items-center justify-between bg-surface-50 rounded-xl p-3.5 border border-surface-100"
+                >
+                  <div class="flex items-center gap-2.5">
+                    <AppIcon icon="check" :size="14" class="text-emerald-500" />
+                    <span class="font-medium text-surface-700 text-sm">{{ item.name }}</span>
+                    <span class="text-xs text-surface-400 bg-surface-200 px-2 py-0.5 rounded-full">x{{ item.quantity }}</span>
+                  </div>
+                  <button @click="deleteEquipment(item.id)" class="text-red-500 hover:text-red-700 text-sm font-medium transition-colors">
+                    Remove
+                  </button>
+                </div>
+              </div>
+              <p v-else class="text-surface-400 text-sm mb-4 text-center py-4">No equipment added yet</p>
+
+              <!-- Add form -->
+              <div class="flex gap-2">
+                <input v-model="equipForm.name" type="text" class="input-field flex-1" placeholder="Item name" />
+                <input v-model.number="equipForm.quantity" type="number" min="1" class="input-field w-20" />
+                <button @click="addEquipment" class="btn-primary btn-sm">
+                  <AppIcon icon="plus" :size="16" />
+                </button>
+              </div>
+
+              <button @click="showEquipForm = false" class="btn-secondary w-full mt-4">Done</button>
             </div>
-            <button @click="deleteEquipment(item.id)" class="text-red-500 hover:text-red-700 text-sm">
-              Remove
-            </button>
-          </div>
+          </Transition>
         </div>
-        <p v-else class="text-gray-500 text-sm mb-4">No equipment added yet</p>
-
-        <!-- Add form -->
-        <div class="flex gap-2">
-          <input v-model="equipForm.name" type="text" class="input-field flex-1" placeholder="Item name" />
-          <input v-model.number="equipForm.quantity" type="number" min="1" class="input-field w-20" />
-          <button @click="addEquipment" class="btn-primary btn-sm">Add</button>
-        </div>
-
-        <button @click="showEquipForm = false" class="btn-secondary w-full mt-4">Close</button>
-      </div>
-    </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
