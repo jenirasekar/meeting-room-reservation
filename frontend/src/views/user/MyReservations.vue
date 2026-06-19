@@ -23,7 +23,7 @@ const filteredReservations = computed(() => {
 
 let timer = null
 onMounted(() => {
-  reservationsStore.fetchReservations()
+  reservationsStore.fetchReservations({ mine: true })
   timer = setInterval(() => { now.value = new Date() }, 30_000)
 })
 onUnmounted(() => {
@@ -38,7 +38,7 @@ function canCheckin(res) {
 }
 
 function applyFilter() {
-  reservationsStore.fetchReservations({ status: statusFilter.value || undefined })
+  reservationsStore.fetchReservations({ mine: true,status: statusFilter.value || undefined })
 }
 
 const statusTabs = [
@@ -70,7 +70,7 @@ async function handleCancel(id) {
     const result = await reservationsStore.cancelReservation(id)
     if (result.success) {
       toast.success('Reservation cancelled')
-      await reservationsStore.fetchReservations()
+      await reservationsStore.fetchReservations({ mine: true })
     } else {
       toast.error(result.message || 'Failed to cancel')
     }
@@ -84,7 +84,7 @@ async function handleCheckin(id) {
   const result = await reservationsStore.checkin(id)
   if (result.success) {
     toast.success('Check-in successful!')
-    await reservationsStore.fetchReservations()
+    await reservationsStore.fetchReservations({ mine: true })
   } else {
     toast.error(result.message || 'Check-in failed')
   }

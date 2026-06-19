@@ -39,9 +39,10 @@ public class ReservationServlet extends HttpServlet {
 
         if (pathInfo == null || pathInfo.equals("/")) {
             // GET /api/reservations
+            boolean mineOnly = "true".equalsIgnoreCase(req.getParameter("mine"));
             Integer userId = null;
-            if (!"admin".equals(user.getRole())) {
-                userId = user.getId(); // Regular users only see their own
+            if (!"admin".equals(user.getRole()) || mineOnly) {
+                userId = user.getId();
             }
             String status = req.getParameter("status");
             List<Reservation> list = reservationDAO.findAll(userId, status);
