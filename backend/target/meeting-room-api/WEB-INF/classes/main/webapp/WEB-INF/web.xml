@@ -18,7 +18,6 @@
         <cookie-config>
             <http-only>true</http-only>
             <secure>false</secure>
-            <same-site>lax</same-site>
         </cookie-config>
     </session-config>
 

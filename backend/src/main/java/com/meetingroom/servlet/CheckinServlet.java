@@ -70,6 +70,19 @@ public class CheckinServlet extends HttpServlet {
                 return;
             }
 
+            // Check-in is only allowed within the reserved time window
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            if (now.isBefore(res.getStartTime())) {
+                resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                resp.getWriter().write(JsonUtil.error("Cannot check in before the meeting start time"));
+                return;
+            }
+            if (now.isAfter(res.getEndTime())) {
+                resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                resp.getWriter().write(JsonUtil.error("Cannot check in after the meeting has ended"));
+                return;
+            }
+
             Checkin checkin = new Checkin();
             checkin.setReservationId(reservationId);
             checkin.setMethod("manual");

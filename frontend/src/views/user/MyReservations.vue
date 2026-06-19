@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useReservationsStore } from '../../stores/reservations'
 import { useToastStore } from '../../stores/toast'
 import SkeletonLoader from '../../components/SkeletonLoader.vue'
@@ -9,10 +9,23 @@ const reservationsStore = useReservationsStore()
 const toast = useToastStore()
 const statusFilter = ref('')
 const cancelConfirmId = ref(null)
+const now = ref(new Date())
 
+let timer = null
 onMounted(() => {
   reservationsStore.fetchReservations()
+  timer = setInterval(() => { now.value = new Date() }, 30_000)
 })
+onUnmounted(() => {
+  clearInterval(timer)
+})
+
+function canCheckin(res) {
+  if (res.status !== 'approved') return false
+  const start = new Date(res.startTime)
+  const end = new Date(res.endTime)
+  return now.value >= start && now.value <= end
+}
 
 function applyFilter() {
   reservationsStore.fetchReservations({ status: statusFilter.value || undefined })
@@ -149,23 +162,23 @@ function statusIcon(status) {
         <div class="flex flex-col sm:flex-row gap-4">
           <!-- Left: time column -->
           <div class="sm:w-36 shrink-0 text-sm">
-            <div class="flex sm:flex-col sm:items-center gap-2 sm:gap-0 sm:text-center">
-              <AppIcon icon="calendar" :size="14" class="text-surface-400 sm:mx-auto" />
+            <div class="flex sm:flex-col sm:items-center items-center gap-2 sm:gap-1.5 sm:text-center">
+              <AppIcon icon="calendar" :size="16" class="text-surface-400 sm:mx-auto" />
               <span class="text-surface-600 font-medium">{{ formatDateOnly(res.startTime) }}</span>
-              <span class="text-surface-400 sm:text-xs">
+              <span class="text-surface-400 sm:text-xs whitespace-nowrap">
                 {{ formatTimeOnly(res.startTime) }} – {{ formatTimeOnly(res.endTime) }}
               </span>
             </div>
           </div>
 
           <!-- Divider -->
-          <div class="hidden sm:block w-px bg-surface-100 shrink-0" />
+          <div class="hidden sm:block w-px bg-surface-100 self-stretch shrink-0" />
 
           <!-- Right: content -->
           <div class="flex-1 min-w-0">
-            <div class="flex items-start justify-between gap-3 mb-2">
+            <div class="flex items-center justify-between gap-3 mb-2">
               <h3 class="text-lg font-semibold text-surface-900 truncate">{{ res.title }}</h3>
-              <span :class="statusBadgeClass(res.status)" class="inline-flex items-center justify-center shrink-0 gap-1.5 min-w-[120px] rounded-full px-3 py-1 text-md font-medium">
+              <span :class="statusBadgeClass(res.status)" class="inline-flex items-center justify-center shrink-0 gap-1.5 min-w-[100px] sm:min-w-[120px] rounded-full px-3 py-1 text-sm font-medium">
                 <AppIcon :icon="statusIcon(res.status)" :size="12" />
                 {{ res.status }}
               </span>
@@ -185,13 +198,20 @@ function statusIcon(status) {
             <!-- Actions -->
             <div class="flex items-center gap-2 mt-3 pt-3 border-t border-surface-100">
               <button
-                v-if="res.status === 'approved'"
+                v-if="canCheckin(res)"
                 @click="handleCheckin(res.id)"
                 class="btn btn-success btn-sm"
               >
                 <AppIcon icon="check" :size="14" />
                 Check-in
               </button>
+              <span
+                v-else-if="res.status === 'approved' && new Date(res.startTime) > now"
+                class="text-xs text-surface-400 flex items-center gap-1"
+              >
+                <AppIcon icon="clock" :size="12" />
+                Check-in opens {{ new Date(res.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
+              </span>
               <button
                 v-if="res.status === 'pending' || res.status === 'approved'"
                 @click="handleCancel(res.id)"
