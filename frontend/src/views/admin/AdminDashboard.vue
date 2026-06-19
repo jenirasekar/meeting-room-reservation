@@ -136,6 +136,20 @@ const statCards = [
               </div>
               <AppIcon icon="chevron-right" :size="16" class="text-surface-300 group-hover:text-surface-500 transition-colors" />
             </router-link>
+
+            <router-link
+              to="/admin/users"
+              class="flex items-center gap-4 p-4 rounded-xl bg-surface-50 hover:bg-surface-100 border border-surface-100 transition-all group"
+            >
+              <div class="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center group-hover:bg-violet-200 transition-colors">
+                <AppIcon icon="users" :size="20" class="text-violet-600" />
+              </div>
+              <div class="flex-1">
+                <p class="font-medium text-surface-800 text-sm">Manage Users</p>
+                <p class="text-xs text-surface-400">Edit roles or remove user accounts</p>
+              </div>
+              <AppIcon icon="chevron-right" :size="16" class="text-surface-300 group-hover:text-surface-500 transition-colors" />
+            </router-link>
           </div>
         </div>
       </div>
