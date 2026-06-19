@@ -22,7 +22,13 @@ public class CheckinServlet extends HttpServlet {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
 
-        User user = (User) req.getSession().getAttribute("user");
+        HttpSession session = req.getSession(false);
+        User user = (session != null) ? (User) session.getAttribute("user") : null;
+        if (user == null) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().write(JsonUtil.error("Authentication required"));
+            return;
+        }
 
         // Path: /api/checkin/{reservationId}
         String pathInfo = req.getPathInfo();

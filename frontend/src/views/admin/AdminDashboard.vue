@@ -44,7 +44,7 @@ const statCards = [
         >
           <div class="flex items-start justify-between mb-3">
             <div :class="['w-11 h-11 rounded-xl flex items-center justify-center', stat.iconBg]">
-              <AppIcon :name="stat.icon" :size="20" :class="stat.iconColor" />
+              <AppIcon :icon="stat.icon" :size="20" :class="stat.iconColor" />
             </div>
             <div :class="['w-2 h-2 rounded-full', stat.iconColor.replace('text-', 'bg-')]" />
           </div>
@@ -72,28 +72,28 @@ const statCards = [
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                 <span class="text-surface-600 text-sm">Approved</span>
               </div>
-              <span class="badge-approved">{{ store.stats.approved_count }}</span>
+              <span class="badge-approved w-5 text-center rounded">{{ store.stats.approved_count }}</span>
             </div>
             <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-surface-50 transition-colors">
               <div class="flex items-center gap-3">
                 <span class="w-2.5 h-2.5 rounded-full bg-amber-500" />
                 <span class="text-surface-600 text-sm">Pending</span>
               </div>
-              <span class="badge-pending">{{ store.stats.pending_count }}</span>
+              <span class="badge-pending w-5 text-center rounded">{{ store.stats.pending_count }}</span>
             </div>
             <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-surface-50 transition-colors">
               <div class="flex items-center gap-3">
                 <span class="w-2.5 h-2.5 rounded-full bg-blue-500" />
                 <span class="text-surface-600 text-sm">Completed</span>
               </div>
-              <span class="badge-completed">{{ store.stats.completed_count }}</span>
+              <span class="badge-completed w-5 text-center rounded">{{ store.stats.completed_count }}</span>
             </div>
             <div class="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-surface-50 transition-colors">
               <div class="flex items-center gap-3">
                 <span class="w-2.5 h-2.5 rounded-full bg-red-500" />
                 <span class="text-surface-600 text-sm">Rejected</span>
               </div>
-              <span class="badge-rejected">{{ store.stats.rejected_count }}</span>
+              <span class="badge-rejected w-5 text-center rounded">{{ store.stats.rejected_count }}</span>
             </div>
           </div>
         </div>
@@ -146,7 +146,7 @@ const statCards = [
         <AppIcon icon="exclamation-circle" :size="36" class="text-surface-300" />
       </div>
       <p class="text-surface-500">Could not load dashboard data.</p>
-      <button @click="store.fetchStats()" class="btn-secondary mt-4">
+      <button @click="store.fetchStats()" class="btn btn-secondary mt-4">
         <AppIcon icon="refresh" :size="16" />
         Retry
       </button>

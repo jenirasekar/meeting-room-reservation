@@ -98,7 +98,7 @@ function statusIcon(status) {
         <h1 class="text-2xl font-bold text-surface-900">My Reservations</h1>
         <p class="text-surface-500 mt-1">Track and manage your room bookings</p>
       </div>
-      <router-link to="/rooms" class="btn-primary mt-4 sm:mt-0">
+      <router-link to="/rooms" class="btn btn-primary mt-4 sm:mt-0">
         <AppIcon icon="plus" :size="16" />
         New Booking
       </router-link>
@@ -133,7 +133,7 @@ function statusIcon(status) {
       </div>
       <h3 class="text-lg font-semibold text-surface-700 mb-1">No reservations yet</h3>
       <p class="text-surface-400 mb-4">Start by browsing available rooms.</p>
-      <router-link to="/rooms" class="btn-primary">
+      <router-link to="/rooms" class="btn btn-primary">
         <AppIcon icon="building" :size="16" />
         Browse Rooms
       </router-link>
@@ -165,8 +165,8 @@ function statusIcon(status) {
           <div class="flex-1 min-w-0">
             <div class="flex items-start justify-between gap-3 mb-2">
               <h3 class="text-lg font-semibold text-surface-900 truncate">{{ res.title }}</h3>
-              <span :class="statusBadgeClass(res.status)" class="shrink-0">
-                <AppIcon :name="statusIcon(res.status)" :size="12" />
+              <span :class="statusBadgeClass(res.status)" class="inline-flex items-center justify-center shrink-0 gap-1.5 min-w-[120px] rounded-full px-3 py-1 text-md font-medium">
+                <AppIcon :icon="statusIcon(res.status)" :size="12" />
                 {{ res.status }}
               </span>
             </div>
@@ -187,7 +187,7 @@ function statusIcon(status) {
               <button
                 v-if="res.status === 'approved'"
                 @click="handleCheckin(res.id)"
-                class="btn-success btn-sm"
+                class="btn btn-success btn-sm"
               >
                 <AppIcon icon="check" :size="14" />
                 Check-in
@@ -195,7 +195,7 @@ function statusIcon(status) {
               <button
                 v-if="res.status === 'pending' || res.status === 'approved'"
                 @click="handleCancel(res.id)"
-                :class="cancelConfirmId === res.id ? 'btn-danger btn-sm animate-shake' : 'btn-ghost btn-sm text-red-500 hover:bg-red-50'"
+                :class="cancelConfirmId === res.id ? 'btn btn-danger btn-sm animate-shake' : 'btn btn-ghost btn-sm text-red-500 hover:bg-red-50'"
               >
                 <AppIcon icon="x-mark" :size="14" />
                 {{ cancelConfirmId === res.id ? 'Confirm cancel?' : 'Cancel' }}
@@ -203,7 +203,7 @@ function statusIcon(status) {
               <button
                 v-if="cancelConfirmId === res.id"
                 @click="cancelConfirmId = null"
-                class="btn-ghost btn-sm"
+                class="btn btn-ghost btn-sm"
               >
                 Keep
               </button>

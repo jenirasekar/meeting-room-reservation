@@ -56,8 +56,10 @@ function formatTime(date) {
 function checkConflict() {
   if (!date.value || !bookedSlots.value.length) return false
 
-  const selectedStart = new Date(`${date.value}T${startTime.value}:00`)
-  const selectedEnd = new Date(`${date.value}T${endTime.value}:00`)
+  // Use same manual parsing as parseLocalDateTime for cross-browser consistency
+  const selectedStart = parseLocalDateTime(`${date.value}T${startTime.value}:00`)
+  const selectedEnd = parseLocalDateTime(`${date.value}T${endTime.value}:00`)
+  if (!selectedStart || !selectedEnd) return false
 
   for (const slot of bookedSlots.value) {
     const slotStart = parseLocalDateTime(slot.startTime)
@@ -212,14 +214,14 @@ function getToday() {
       <div class="flex gap-3 pt-2">
         <button
           type="submit"
-          class="btn-primary flex-1"
+          class="btn btn-primary flex-1"
           :disabled="submitting || loadingSlots"
         >
           <span v-if="submitting" class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           <AppIcon v-else icon="check" :size="16" />
           {{ submitting ? 'Booking...' : 'Book Room' }}
         </button>
-        <button type="button" class="btn-secondary" @click="emit('cancel')">
+        <button type="button" class="btn btn-secondary" @click="emit('cancel')">
           Cancel
         </button>
       </div>

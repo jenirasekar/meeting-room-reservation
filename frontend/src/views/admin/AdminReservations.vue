@@ -1,91 +1,91 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useReservationsStore } from '../../stores/reservations'
-import { useToastStore } from '../../stores/toast'
-import SkeletonLoader from '../../components/SkeletonLoader.vue'
-import AppIcon from '../../components/AppIcon.vue'
+import { ref, onMounted } from "vue";
+import { useReservationsStore } from "../../stores/reservations";
+import { useToastStore } from "../../stores/toast";
+import SkeletonLoader from "../../components/SkeletonLoader.vue";
+import AppIcon from "../../components/AppIcon.vue";
 
-const store = useReservationsStore()
-const toast = useToastStore()
-const statusFilter = ref('')
-const rejectModal = ref(null)
+const store = useReservationsStore();
+const toast = useToastStore();
+const statusFilter = ref("");
+const rejectModal = ref(null);
 
 onMounted(() => {
-  store.fetchReservations()
-})
+  store.fetchReservations();
+});
 
 function applyFilter() {
-  store.fetchReservations({ status: statusFilter.value || undefined })
+  store.fetchReservations({ status: statusFilter.value || undefined });
 }
 
 const statusTabs = [
-  { value: '', label: 'All' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'approved', label: 'Approved' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'cancelled', label: 'Cancelled' },
-  { value: 'rejected', label: 'Rejected' },
-]
+  { value: "", label: "All" },
+  { value: "pending", label: "Pending" },
+  { value: "approved", label: "Approved" },
+  { value: "completed", label: "Completed" },
+  { value: "cancelled", label: "Cancelled" },
+  { value: "rejected", label: "Rejected" },
+];
 
 function formatDateTime(dateStr) {
-  if (!dateStr) return ''
-  return new Date(dateStr).toLocaleString()
+  if (!dateStr) return "";
+  return new Date(dateStr).toLocaleString();
 }
 
 function formatDateShort(dateStr) {
-  if (!dateStr) return ''
-  return new Date(dateStr).toLocaleDateString([], { month: 'short', day: 'numeric' })
+  if (!dateStr) return "";
+  return new Date(dateStr).toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
 function formatTimeShort(dateStr) {
-  if (!dateStr) return ''
-  return new Date(dateStr).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  if (!dateStr) return "";
+  return new Date(dateStr).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
 async function handleApprove(id) {
-  const result = await store.approveReservation(id)
+  const result = await store.approveReservation(id);
   if (result.success) {
-    toast.success('Reservation approved!')
+    toast.success("Reservation approved!");
   } else {
-    toast.error(result.message || 'Failed to approve')
+    toast.error(result.message || "Failed to approve");
   }
 }
 
 function openReject(id) {
-  rejectModal.value = { id, note: '' }
+  rejectModal.value = { id, note: "" };
 }
 
 async function confirmReject() {
-  if (!rejectModal.value) return
-  const result = await store.rejectReservation(rejectModal.value.id, rejectModal.value.note)
+  if (!rejectModal.value) return;
+  const result = await store.rejectReservation(rejectModal.value.id, rejectModal.value.note);
   if (result.success) {
-    toast.info('Reservation rejected')
-    rejectModal.value = null
+    toast.info("Reservation rejected");
+    rejectModal.value = null;
   } else {
-    toast.error(result.message || 'Failed to reject')
+    toast.error(result.message || "Failed to reject");
   }
 }
 
 function statusBadgeClass(status) {
   const map = {
-    pending: 'badge-pending',
-    approved: 'badge-approved',
-    rejected: 'badge-rejected',
-    cancelled: 'badge-cancelled',
-    completed: 'badge-completed'
-  }
-  return map[status] || 'badge'
+    pending: "badge-pending",
+    approved: "badge-approved",
+    rejected: "badge-rejected",
+    cancelled: "badge-cancelled",
+    completed: "badge-completed",
+  };
+  return map[status] || "badge";
 }
 
 function statusIcon(status) {
   const map = {
-    pending: 'clock',
-    approved: 'check-circle',
-    rejected: 'x-mark',
-    cancelled: 'close',
-    completed: 'check',
-  }
-  return map[status] || 'information-circle'
+    pending: "clock",
+    approved: "check-circle",
+    rejected: "x-mark",
+    cancelled: "close",
+    completed: "check",
+  };
+  return map[status] || "information-circle";
 }
 </script>
 
@@ -96,7 +96,7 @@ function statusIcon(status) {
         <h1 class="text-2xl font-bold text-surface-900">Manage Reservations</h1>
         <p class="text-surface-500 mt-1">Approve or reject booking requests</p>
       </div>
-      <button @click="store.fetchReservations()" class="btn-secondary mt-4 sm:mt-0">
+      <button @click="store.fetchReservations()" class="btn btn-secondary mt-4 sm:mt-0">
         <AppIcon icon="refresh" :size="16" />
         Refresh
       </button>
@@ -107,14 +107,16 @@ function statusIcon(status) {
       <button
         v-for="tab in statusTabs"
         :key="tab.value"
-        @click="statusFilter = tab.value; applyFilter()"
+        @click="
+          statusFilter = tab.value;
+          applyFilter();
+        "
         :class="[
           'px-4 py-2 rounded-xl text-sm font-medium transition-all shrink-0',
           statusFilter === tab.value
             ? 'bg-primary-600 text-white shadow-sm shadow-primary-600/25'
-            : 'bg-white text-surface-500 hover:text-surface-700 hover:bg-surface-100 border border-surface-200'
-        ]"
-      >
+            : 'bg-white text-surface-500 hover:text-surface-700 hover:bg-surface-100 border border-surface-200',
+        ]">
         {{ tab.label }}
       </button>
     </div>
@@ -135,18 +137,16 @@ function statusIcon(status) {
 
     <!-- Reservation list -->
     <div v-else class="space-y-3">
-      <div
-        v-for="res in store.reservations"
-        :key="res.id"
-        class="card hover:shadow-soft-lg transition-all"
-      >
+      <div v-for="res in store.reservations" :key="res.id" class="card hover:shadow-soft-lg transition-all">
         <div class="flex flex-col lg:flex-row gap-4">
           <!-- Left info -->
           <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-3 mb-2">
+            <div class="flex flex-wrap items-center gap-3 mb-2">
               <h3 class="text-lg font-semibold text-surface-900 truncate">{{ res.title }}</h3>
-              <span :class="statusBadgeClass(res.status)" class="shrink-0">
-                <AppIcon :name="statusIcon(res.status)" :size="12" />
+              <span
+                :class="statusBadgeClass(res.status)"
+                class="inline-flex items-center justify-center shrink-0 gap-1.5 min-w-[120px] rounded-full px-3 py-1 text-md font-medium">
+                <AppIcon :icon="statusIcon(res.status)" :size="12" />
                 {{ res.status }}
               </span>
             </div>
@@ -175,11 +175,11 @@ function statusIcon(status) {
 
           <!-- Admin actions -->
           <div v-if="res.status === 'pending'" class="flex items-center gap-2 shrink-0">
-            <button @click="handleApprove(res.id)" class="btn-success btn-sm">
+            <button @click="handleApprove(res.id)" class="btn btn-success btn-sm">
               <AppIcon icon="check" :size="14" />
               Approve
             </button>
-            <button @click="openReject(res.id)" class="btn-danger btn-sm">
+            <button @click="openReject(res.id)" class="btn btn-danger btn-sm">
               <AppIcon icon="x-mark" :size="14" />
               Reject
             </button>
@@ -190,10 +190,13 @@ function statusIcon(status) {
 
     <!-- Reject modal -->
     <Teleport to="body">
-      <Transition icon="modal-backdrop">
-        <div v-if="rejectModal" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="rejectModal = null">
+      <Transition name="modal-backdrop">
+        <div
+          v-if="rejectModal"
+          class="fixed inset-0 z-50 flex items-center justify-center p-4"
+          @click.self="rejectModal = null">
           <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-          <Transition icon="modal-content">
+          <Transition name="modal-content">
             <div v-if="rejectModal" class="relative bg-white rounded-2xl shadow-soft-xl w-full max-w-sm p-6">
               <h3 class="text-lg font-semibold text-surface-900 mb-3">Reject Reservation</h3>
               <div class="mb-4">
@@ -202,12 +205,11 @@ function statusIcon(status) {
                   v-model="rejectModal.note"
                   class="input-field"
                   rows="2"
-                  placeholder="Why is this being rejected?"
-                />
+                  placeholder="Why is this being rejected?" />
               </div>
               <div class="flex gap-3">
-                <button @click="confirmReject" class="btn-danger flex-1">Reject</button>
-                <button @click="rejectModal = null" class="btn-secondary">Cancel</button>
+                <button @click="confirmReject" class="btn btn-danger flex-1">Reject</button>
+                <button @click="rejectModal = null" class="btn btn-secondary">Cancel</button>
               </div>
             </div>
           </Transition>

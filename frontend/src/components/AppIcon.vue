@@ -7,7 +7,7 @@ import {
 } from 'lucide-vue-next'
 
 const props = defineProps({
-  name: { type: String, required: true },
+  icon: { type: String, required: true },
   size: { type: [String, Number], default: 20 },
   class: { type: String, default: '' },
 })
@@ -51,7 +51,7 @@ const icons = {
   'emoji-happy':      Smile,
 }
 
-const IconComponent = icons[props.name] || icons['exclamation-circle']
+const IconComponent = icons[props.icon] || icons['exclamation-circle']
 </script>
 
 <template>

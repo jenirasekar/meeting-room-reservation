@@ -31,7 +31,8 @@ const routes = [
   {
     path: '/my-reservations',
     name: 'MyReservations',
-    component: () => import('../views/user/MyReservations.vue')
+    component: () => import('../views/user/MyReservations.vue'),
+    meta: { requiresAuth: true }
   },
   {
     path: '/admin',
@@ -71,14 +72,24 @@ router.beforeEach(async (to, from, next) => {
     await auth.fetchUser()
   }
 
-  // Guest-only routes (login, register)
+  // Guest-only routes (login, register) — redirect logged-in users away
   if (to.meta.guest && auth.isLoggedIn) {
     return next('/rooms')
   }
 
   // Admin-only routes
-  if (to.meta.admin && !auth.isAdmin) {
-    return next('/rooms')
+  if (to.meta.admin) {
+    if (!auth.isLoggedIn) {
+      return next('/login')
+    }
+    if (!auth.isAdmin) {
+      return next('/rooms')
+    }
+  }
+
+  // Routes that require authentication but not necessarily admin
+  if (to.meta.requiresAuth && !auth.isLoggedIn) {
+    return next('/login')
   }
 
   next()

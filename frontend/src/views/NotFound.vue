@@ -30,11 +30,11 @@ import AppIcon from '../components/AppIcon.vue'
       </p>
 
       <div class="flex items-center justify-center gap-3">
-        <router-link to="/rooms" class="btn-primary btn-lg">
+        <router-link to="/rooms" class="btn btn-primary btn-lg">
           <AppIcon icon="building" :size="18" />
           Browse Rooms
         </router-link>
-        <button @click="$router.back()" class="btn-secondary btn-lg">
+        <button @click="$router.back()" class="btn btn-secondary btn-lg">
           <AppIcon icon="arrow-left" :size="18" />
           Go Back
         </button>

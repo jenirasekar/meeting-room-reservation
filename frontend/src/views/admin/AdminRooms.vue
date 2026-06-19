@@ -116,7 +116,7 @@ async function deleteEquipment(id) {
         <h1 class="text-2xl font-bold text-surface-900">Manage Rooms</h1>
         <p class="text-surface-500 mt-1">Add, edit, or remove meeting rooms</p>
       </div>
-      <button @click="openCreateForm" class="btn-primary">
+      <button @click="openCreateForm" class="btn btn-primary">
         <AppIcon icon="plus" :size="18" />
         Add Room
       </button>
@@ -135,7 +135,7 @@ async function deleteEquipment(id) {
       </div>
       <h3 class="text-lg font-semibold text-surface-700 mb-1">No rooms yet</h3>
       <p class="text-surface-400 mb-4">Create your first meeting room to get started.</p>
-      <button @click="openCreateForm" class="btn-primary">
+      <button @click="openCreateForm" class="btn btn-primary">
         <AppIcon icon="plus" :size="16" />
         Add Room
       </button>
@@ -176,15 +176,15 @@ async function deleteEquipment(id) {
             </p>
           </div>
           <div class="flex gap-2 shrink-0">
-            <button @click="openEquipManager(room)" class="btn-ghost btn-sm">
+            <button @click="openEquipManager(room)" class="btn btn-ghost btn-sm">
               <AppIcon icon="settings" :size="14" />
               <span class="hidden sm:inline">Equipment</span>
             </button>
-            <button @click="openEditForm(room)" class="btn-secondary btn-sm">
+            <button @click="openEditForm(room)" class="btn btn-secondary btn-sm">
               <AppIcon icon="pencil" :size="14" />
               <span class="hidden sm:inline">Edit</span>
             </button>
-            <button @click="handleDelete(room)" class="btn-danger btn-sm">
+            <button @click="handleDelete(room)" class="btn btn-danger btn-sm">
               <AppIcon icon="trash" :size="14" />
               <span class="hidden sm:inline">Delete</span>
             </button>
@@ -195,10 +195,10 @@ async function deleteEquipment(id) {
 
     <!-- Room create/edit modal -->
     <Teleport to="body">
-      <Transition icon="modal-backdrop">
+      <Transition name="modal-backdrop">
         <div v-if="showForm" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="showForm = false">
           <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-          <Transition icon="modal-content">
+          <Transition name="modal-content">
             <div v-if="showForm" class="relative bg-white rounded-2xl shadow-soft-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
               <div class="flex items-center justify-between mb-5">
                 <h2 class="text-xl font-semibold text-surface-900">
@@ -244,11 +244,11 @@ async function deleteEquipment(id) {
                 </div>
 
                 <div class="flex gap-3 pt-2">
-                  <button type="submit" class="btn-primary flex-1" :disabled="formSubmitting">
+                  <button type="submit" class="btn btn-primary flex-1" :disabled="formSubmitting">
                     <span v-if="formSubmitting" class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     {{ formSubmitting ? 'Saving...' : 'Save' }}
                   </button>
-                  <button type="button" class="btn-secondary" @click="showForm = false">Cancel</button>
+                  <button type="button" class="btn btn-secondary" @click="showForm = false">Cancel</button>
                 </div>
               </form>
             </div>
@@ -259,10 +259,10 @@ async function deleteEquipment(id) {
 
     <!-- Equipment manager modal -->
     <Teleport to="body">
-      <Transition icon="modal-backdrop">
+      <Transition name="modal-backdrop">
         <div v-if="showEquipForm" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="showEquipForm = false">
           <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-          <Transition icon="modal-content">
+          <Transition name="modal-content">
             <div v-if="showEquipForm" class="relative bg-white rounded-2xl shadow-soft-xl w-full max-w-md p-6">
               <div class="flex items-center justify-between mb-5">
                 <h2 class="text-xl font-semibold text-surface-900">Equipment — {{ equipRoomName }}</h2>
@@ -294,12 +294,12 @@ async function deleteEquipment(id) {
               <div class="flex gap-2">
                 <input v-model="equipForm.name" type="text" class="input-field flex-1" placeholder="Item name" />
                 <input v-model.number="equipForm.quantity" type="number" min="1" class="input-field w-20" />
-                <button @click="addEquipment" class="btn-primary btn-sm">
+                <button @click="addEquipment" class="btn btn-primary btn-sm">
                   <AppIcon icon="plus" :size="16" />
                 </button>
               </div>
 
-              <button @click="showEquipForm = false" class="btn-secondary w-full mt-4">Done</button>
+              <button @click="showEquipForm = false" class="btn btn-secondary w-full mt-4">Done</button>
             </div>
           </Transition>
         </div>

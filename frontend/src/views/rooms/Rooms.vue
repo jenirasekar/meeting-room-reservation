@@ -99,11 +99,11 @@ const filteredRooms = () => {
               <option value="unavailable">Unavailable</option>
             </select>
           </div>
-          <button @click="applyFilters" class="btn-primary">
+          <button @click="applyFilters" class="btn btn-primary">
             <AppIcon icon="filter" :size="16" />
             Apply
           </button>
-          <button @click="clearFilters" class="btn-ghost text-sm">
+          <button @click="clearFilters" class="btn btn-ghost text-sm">
             Clear filters
           </button>
         </div>
@@ -121,7 +121,7 @@ const filteredRooms = () => {
         </div>
         <h3 class="text-lg font-semibold text-surface-700 mb-1">No rooms found</h3>
         <p class="text-surface-400 mb-4">Try adjusting your filters or check back later.</p>
-        <button @click="clearFilters" class="btn-secondary">Clear Filters</button>
+        <button @click="clearFilters" class="btn btn-secondary">Clear Filters</button>
       </div>
 
       <!-- Search empty -->

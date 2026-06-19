@@ -64,7 +64,7 @@ async function handleRegister() {
     <!-- Animated background blobs -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div class="bg-blob w-96 h-96 bg-primary-600 top-[-10%] right-[-5%]" />
-      <div class="bg-blob-delayed w-80 h-80 bg-primary-400 bottom-[-10%] left-[-5%]" />
+      <div class="bg-blob bg-blob-delayed w-80 h-80 bg-primary-400 bottom-[-10%] left-[-5%]" />
       <div class="bg-blob w-64 h-64 bg-primary-500 top-[40%] left-[10%]" style="animation-delay: 2s" />
     </div>
 
@@ -162,7 +162,7 @@ async function handleRegister() {
           <!-- Submit -->
           <button
             type="submit"
-            class="btn-primary w-full btn-lg"
+            class="btn btn-primary w-full btn-lg"
             :disabled="loading"
           >
             <span v-if="loading" class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

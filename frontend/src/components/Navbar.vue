@@ -77,7 +77,7 @@ const navLinks = [
                   : 'text-surface-600 hover:text-surface-900 hover:bg-surface-100'
               ]"
             >
-              <AppIcon :name="link.icon" :size="16" />
+              <AppIcon :icon="link.icon" :size="16" />
               {{ link.label }}
             </button>
           </template>
@@ -104,7 +104,7 @@ const navLinks = [
               </button>
 
               <!-- Dropdown -->
-              <Transition icon="modal-content">
+              <Transition name="modal-content">
                 <div
                   v-if="userMenuOpen"
                   class="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-soft-xl border border-surface-100 py-1 overflow-hidden"
@@ -138,14 +138,14 @@ const navLinks = [
             @click="mobileMenuOpen = !mobileMenuOpen"
             class="md:hidden p-2 rounded-xl hover:bg-surface-100 transition-colors"
           >
-            <AppIcon :name="mobileMenuOpen ? 'close' : 'menu'" :size="22" class="text-surface-600" />
+            <AppIcon :icon="mobileMenuOpen ? 'close' : 'menu'" :size="22" class="text-surface-600" />
           </button>
         </div>
       </div>
     </div>
 
     <!-- Mobile drawer -->
-    <Transition icon="modal-content">
+    <Transition name="modal-content">
       <div
         v-if="mobileMenuOpen"
         class="md:hidden border-t border-surface-100 bg-white/95 backdrop-blur-xl"
@@ -162,7 +162,7 @@ const navLinks = [
                   : 'text-surface-600 hover:bg-surface-100'
               ]"
             >
-              <AppIcon :name="link.icon" :size="18" />
+              <AppIcon :icon="link.icon" :size="18" />
               {{ link.label }}
             </button>
           </template>

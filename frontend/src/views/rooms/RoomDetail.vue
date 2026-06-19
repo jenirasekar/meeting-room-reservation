@@ -48,7 +48,7 @@ function onBooked() {
       </div>
       <h2 class="text-xl font-semibold text-surface-700 mb-2">Room Not Found</h2>
       <p class="text-surface-400 mb-4">This room may have been removed or doesn't exist.</p>
-      <router-link to="/rooms" class="btn-primary">
+      <router-link to="/rooms" class="btn btn-primary">
         <AppIcon icon="arrow-left" :size="16" />
         Back to Rooms
       </router-link>
@@ -174,7 +174,7 @@ function onBooked() {
               </p>
               <button
                 @click="showBookingForm = true"
-                class="btn-primary w-full btn-lg"
+                class="btn btn-primary w-full btn-lg"
                 :disabled="roomsStore.currentRoom.status !== 'available'"
               >
                 <AppIcon icon="calendar" :size="18" />
