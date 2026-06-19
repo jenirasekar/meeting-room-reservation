@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useReservationsStore } from '../../stores/reservations'
 import { useToastStore } from '../../stores/toast'
 import SkeletonLoader from '../../components/SkeletonLoader.vue'
@@ -8,8 +8,18 @@ import AppIcon from '../../components/AppIcon.vue'
 const reservationsStore = useReservationsStore()
 const toast = useToastStore()
 const statusFilter = ref('')
+const searchQuery = ref('')
 const cancelConfirmId = ref(null)
 const now = ref(new Date())
+
+const filteredReservations = computed(() => {
+  if (!searchQuery.value.trim()) return reservationsStore.reservations
+  const q = searchQuery.value.toLowerCase()
+  return reservationsStore.reservations.filter(r =>
+    r.title.toLowerCase().includes(q) ||
+    (r.roomName && r.roomName.toLowerCase().includes(q))
+  )
+})
 
 let timer = null
 onMounted(() => {
@@ -134,6 +144,17 @@ function statusIcon(status) {
       </button>
     </div>
 
+    <!-- Search -->
+    <div class="relative max-w-sm mb-6">
+      <AppIcon icon="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-surface-400 z-10 pointer-events-none" />
+      <input
+        v-model="searchQuery"
+        type="text"
+        class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-surface-200 text-sm placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-400"
+        placeholder="Search by title or room name..."
+      />
+    </div>
+
     <!-- Loading -->
     <div v-if="reservationsStore.loading" class="space-y-4">
       <SkeletonLoader variant="list-item" :count="4" />
@@ -152,10 +173,19 @@ function statusIcon(status) {
       </router-link>
     </div>
 
+    <!-- Search empty -->
+    <div v-else-if="!filteredReservations.length" class="text-center py-16">
+      <div class="w-20 h-20 rounded-2xl bg-surface-100 flex items-center justify-center mx-auto mb-4">
+        <AppIcon icon="search" :size="36" class="text-surface-300" />
+      </div>
+      <h3 class="text-lg font-semibold text-surface-700 mb-1">No matching reservations</h3>
+      <p class="text-surface-400">Try a different search term.</p>
+    </div>
+
     <!-- Reservation timeline -->
     <div v-else class="space-y-4">
       <div
-        v-for="res in reservationsStore.reservations"
+        v-for="res in filteredReservations"
         :key="res.id"
         class="card stagger-item hover:shadow-soft-lg transition-all"
       >
