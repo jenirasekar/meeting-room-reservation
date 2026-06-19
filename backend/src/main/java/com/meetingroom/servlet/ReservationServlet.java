@@ -125,6 +125,13 @@ public class ReservationServlet extends HttpServlet {
             return;
         }
 
+        // Start time must be in the future
+        if (startTime.isBefore(LocalDateTime.now())) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write(JsonUtil.error("Cannot book a time that has already passed"));
+            return;
+        }
+
         // Check for conflicts
         List<Reservation> conflicts = reservationDAO.findConflicts(roomId, startTime, endTime, null);
         if (!conflicts.isEmpty()) {
