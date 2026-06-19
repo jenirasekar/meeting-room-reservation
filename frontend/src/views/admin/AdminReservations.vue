@@ -62,6 +62,22 @@ async function handleApprove(id) {
   }
 }
 
+const deleteConfirmId = ref(null);
+
+async function handleDelete(id) {
+  if (deleteConfirmId.value === id) {
+    const result = await store.deleteReservation(id);
+    if (result.success) {
+      toast.success("Reservation deleted");
+      deleteConfirmId.value = null;
+    } else {
+      toast.error(result.message || "Failed to delete");
+    }
+  } else {
+    deleteConfirmId.value = id;
+  }
+}
+
 function openReject(id) {
   rejectModal.value = { id, note: "" };
 }
@@ -213,6 +229,33 @@ function statusIcon(status) {
             <button @click="openReject(res.id)" class="btn btn-danger btn-sm">
               <AppIcon icon="x-mark" :size="14" />
               Reject
+            </button>
+          </div>
+
+          <!-- Delete action (cancelled/completed) -->
+          <div v-if="res.status === 'cancelled' || res.status === 'completed'" class="flex items-center gap-2 shrink-0">
+            <button
+              v-if="deleteConfirmId !== res.id"
+              @click="handleDelete(res.id)"
+              class="btn btn-ghost btn-sm text-red-500 hover:bg-red-50"
+            >
+              <AppIcon icon="trash" :size="14" />
+              Delete
+            </button>
+            <button
+              v-if="deleteConfirmId === res.id"
+              @click="handleDelete(res.id)"
+              class="btn btn-danger btn-sm animate-shake"
+            >
+              <AppIcon icon="trash" :size="14" />
+              Confirm?
+            </button>
+            <button
+              v-if="deleteConfirmId === res.id"
+              @click="deleteConfirmId = null"
+              class="btn btn-ghost btn-sm"
+            >
+              Keep
             </button>
           </div>
         </div>

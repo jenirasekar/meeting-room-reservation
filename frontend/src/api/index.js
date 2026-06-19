@@ -71,7 +71,8 @@ export const reservationsAPI = {
   create(data) { return api.post('/reservations', data) },
   approve(id, note) { return api.put(`/reservations/${id}/approve`, { note }) },
   reject(id, note) { return api.put(`/reservations/${id}/reject`, { note }) },
-  cancel(id) { return api.put(`/reservations/${id}/cancel`) }
+  cancel(id) { return api.put(`/reservations/${id}/cancel`) },
+  delete(id) { return api.delete(`/reservations/${id}`) }
 }
 
 // ---- Check-in ----

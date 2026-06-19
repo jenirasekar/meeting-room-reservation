@@ -218,6 +218,18 @@ public class ReservationDAO {
         return r;
     }
 
+    public boolean delete(int id) {
+        String sql = "DELETE FROM reservation WHERE id = ?";
+        try (Connection conn = DBConnection.getDataSource().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     // Added for auto-cancellation
     public List<Integer> findNoShows(java.time.LocalDateTime cutoff) {
         List<Integer> ids = new ArrayList<>();

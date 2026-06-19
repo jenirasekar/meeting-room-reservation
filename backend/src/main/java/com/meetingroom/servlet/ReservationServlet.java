@@ -264,4 +264,60 @@ public class ReservationServlet extends HttpServlet {
             resp.getWriter().write(JsonUtil.error("Invalid reservation ID"));
         }
     }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+
+        HttpSession session = req.getSession(false);
+        User user = (session != null) ? (User) session.getAttribute("user") : null;
+        if (user == null) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().write(JsonUtil.error("Authentication required"));
+            return;
+        }
+
+        String pathInfo = req.getPathInfo();
+        if (pathInfo == null || pathInfo.equals("/")) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write(JsonUtil.error("Reservation ID is required"));
+            return;
+        }
+
+        try {
+            int id = Integer.parseInt(pathInfo.substring(1));
+            Reservation res = reservationDAO.findById(id);
+
+            if (res == null) {
+                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                resp.getWriter().write(JsonUtil.error("Reservation not found"));
+                return;
+            }
+
+            // Only the owner or admin can delete
+            if (res.getUserId() != user.getId() && !"admin".equals(user.getRole())) {
+                resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                resp.getWriter().write(JsonUtil.error("Access denied"));
+                return;
+            }
+
+            // Only cancelled or completed reservations can be deleted
+            if (!"cancelled".equals(res.getStatus()) && !"completed".equals(res.getStatus())) {
+                resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                resp.getWriter().write(JsonUtil.error("Only cancelled or completed reservations can be deleted"));
+                return;
+            }
+
+            if (reservationDAO.delete(id)) {
+                resp.getWriter().write(JsonUtil.success("Reservation deleted"));
+            } else {
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                resp.getWriter().write(JsonUtil.error("Failed to delete reservation"));
+            }
+        } catch (NumberFormatException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write(JsonUtil.error("Invalid reservation ID"));
+        }
+    }
 }

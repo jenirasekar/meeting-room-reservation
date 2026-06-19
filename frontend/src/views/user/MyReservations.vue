@@ -90,6 +90,23 @@ async function handleCheckin(id) {
   }
 }
 
+const deleteConfirmId = ref(null)
+
+async function handleDelete(id) {
+  if (deleteConfirmId.value === id) {
+    const result = await reservationsStore.deleteReservation(id)
+    if (result.success) {
+      toast.success('Reservation deleted')
+      await reservationsStore.fetchReservations({ mine: true })
+    } else {
+      toast.error(result.message || 'Failed to delete')
+    }
+    deleteConfirmId.value = null
+  } else {
+    deleteConfirmId.value = id
+  }
+}
+
 function statusBadgeClass(status) {
   const map = {
     pending: 'badge-pending',
@@ -253,6 +270,29 @@ function statusIcon(status) {
               <button
                 v-if="cancelConfirmId === res.id"
                 @click="cancelConfirmId = null"
+                class="btn btn-ghost btn-sm"
+              >
+                Keep
+              </button>
+              <button
+                v-if="(res.status === 'cancelled' || res.status === 'completed') && deleteConfirmId !== res.id"
+                @click="handleDelete(res.id)"
+                class="btn btn-ghost btn-sm text-red-500 hover:bg-red-50"
+              >
+                <AppIcon icon="trash" :size="14" />
+                Delete
+              </button>
+              <button
+                v-if="deleteConfirmId === res.id"
+                @click="handleDelete(res.id)"
+                class="btn btn-danger btn-sm animate-shake"
+              >
+                <AppIcon icon="trash" :size="14" />
+                Confirm delete?
+              </button>
+              <button
+                v-if="deleteConfirmId === res.id"
+                @click="deleteConfirmId = null"
                 class="btn btn-ghost btn-sm"
               >
                 Keep

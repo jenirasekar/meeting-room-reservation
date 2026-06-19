@@ -56,6 +56,12 @@ export const useReservationsStore = defineStore('reservations', () => {
     return data
   }
 
+  async function deleteReservation(id) {
+    const { data } = await reservationsAPI.delete(id)
+    if (data.success) await fetchReservations()
+    return data
+  }
+
   async function checkin(reservationId) {
     const { data } = await checkinAPI.checkin(reservationId)
     return data
@@ -76,7 +82,7 @@ export const useReservationsStore = defineStore('reservations', () => {
   return {
     reservations, currentReservation, stats, loading,
     fetchReservations, fetchReservation, createReservation,
-    approveReservation, rejectReservation, cancelReservation,
+    approveReservation, rejectReservation, cancelReservation, deleteReservation,
     checkin, fetchStats
   }
 })
