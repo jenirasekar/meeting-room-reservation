@@ -283,7 +283,7 @@ async function deleteEquipment(id) {
                 </button>
               </div>
 
-              <form @submit.prevent="handleSave" class="space-y-4">
+              <form @submit.prevent="handleSave" class="space-y-4" novalidate>
                 <div>
                   <label class="block text-sm font-medium text-surface-700 mb-1.5">Name <span class="text-red-400">*</span></label>
                   <input v-model="form.name" type="text" class="input-field" required />

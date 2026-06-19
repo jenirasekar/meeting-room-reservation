@@ -79,7 +79,7 @@ public class AuthFilter implements Filter {
             ("DELETE".equals(method) && path.matches(".*/api/rooms/\\d+$")) ||
             path.matches(".*/api/reservations/\\d+/approve$") ||
             path.matches(".*/api/reservations/\\d+/reject$") ||
-            path.contains("/api/upload/") ||
+            path.contains("/api/upload") ||
             (path.contains("/equipment") && (method.equals("POST") || method.equals("PUT") || method.equals("DELETE")))) {
 
             if (!"admin".equals(user.getRole())) {
