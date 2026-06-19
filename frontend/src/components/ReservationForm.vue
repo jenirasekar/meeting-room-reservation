@@ -95,10 +95,10 @@ async function handleSubmit() {
   }
 
   // Prevent booking in the past
-  if (startTime.isBefore(LocalDateTime.now())) {
-    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-    resp.getWriter().write(JsonUtil.error("Cannot book a time that has already passed"));
-    return;
+  const selectedDateTime = new Date(`${date.value}T${startTime.value}:00`)
+  if (selectedDateTime <= new Date()) {
+    error.value = 'Cannot book a reservation in the past'
+    return
   }
 
   if (checkConflict()) {
