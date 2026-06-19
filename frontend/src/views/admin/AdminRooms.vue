@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoomsStore } from '../../stores/rooms'
-import { equipmentAPI } from '../../api'
+import { equipmentAPI, uploadAPI } from '../../api'
 import { useToastStore } from '../../stores/toast'
 import AppIcon from '../../components/AppIcon.vue'
 
@@ -15,6 +15,8 @@ const form = ref({
 })
 const formError = ref('')
 const formSubmitting = ref(false)
+const uploading = ref(false)
+const fileInput = ref(null)
 
 // Equipment management
 const showEquipForm = ref(false)
@@ -26,15 +28,22 @@ onMounted(() => {
   roomsStore.fetchRooms()
 })
 
-function openCreateForm() {
-  editingRoom.value = null
+function resetForm() {
   form.value = { name: '', location: '', capacity: 10, description: '', status: 'available', imageUrl: '' }
   formError.value = ''
+  uploading.value = false
+  if (fileInput.value) fileInput.value.value = ''
+}
+
+function openCreateForm() {
+  editingRoom.value = null
+  resetForm()
   showForm.value = true
 }
 
 function openEditForm(room) {
   editingRoom.value = room
+  resetForm()
   form.value = {
     name: room.name,
     location: room.location || '',
@@ -43,8 +52,43 @@ function openEditForm(room) {
     status: room.status,
     imageUrl: room.imageUrl || ''
   }
-  formError.value = ''
   showForm.value = true
+}
+
+async function handleFileSelect(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+
+  // Validate
+  if (!file.type.startsWith('image/')) {
+    formError.value = 'Please select an image file (JPEG, PNG, GIF, WebP)'
+    return
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    formError.value = 'Image must be under 5 MB'
+    return
+  }
+
+  formError.value = ''
+  try {
+    uploading.value = true
+    const { data } = await uploadAPI.roomImage(file)
+    if (data.success) {
+      form.value.imageUrl = data.data // data.data is the URL string
+      toast.success('Photo uploaded!')
+    } else {
+      formError.value = data.message || 'Upload failed'
+    }
+  } catch (err) {
+    formError.value = err.response?.data?.message || 'Upload failed'
+  } finally {
+    uploading.value = false
+  }
+}
+
+function clearImage() {
+  form.value.imageUrl = ''
+  if (fileInput.value) fileInput.value.value = ''
 }
 
 async function handleSave() {
@@ -233,9 +277,60 @@ async function deleteEquipment(id) {
                     <option value="unavailable">Unavailable</option>
                   </select>
                 </div>
+                <!-- Room photo upload -->
                 <div>
-                  <label class="block text-sm font-medium text-surface-700 mb-1.5">Image URL</label>
-                  <input v-model="form.imageUrl" type="url" class="input-field" placeholder="https://example.com/room.jpg" />
+                  <label class="block text-sm font-medium text-surface-700 mb-1.5">Room Photo</label>
+
+                  <!-- Preview -->
+                  <div v-if="form.imageUrl" class="relative mb-3 rounded-xl overflow-hidden border border-surface-200 bg-surface-100">
+                    <img
+                      :src="form.imageUrl"
+                      alt="Room preview"
+                      class="w-full h-48 object-cover"
+                      @error="$event.target.style.display = 'none'"
+                    />
+                    <button
+                      type="button"
+                      @click="clearImage"
+                      class="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-colors"
+                      title="Remove photo"
+                    >
+                      <AppIcon icon="x-mark" :size="14" />
+                    </button>
+                  </div>
+
+                  <!-- Upload area -->
+                  <div class="flex items-center gap-3">
+                    <label
+                      :class="[
+                        'btn btn-secondary btn-sm cursor-pointer',
+                        { 'pointer-events-none opacity-50': uploading }
+                      ]"
+                    >
+                      <span v-if="uploading" class="inline-block w-3.5 h-3.5 border-2 border-surface-400 border-t-primary-500 rounded-full animate-spin" />
+                      <AppIcon v-else icon="upload" :size="14" />
+                      {{ uploading ? 'Uploading...' : (form.imageUrl ? 'Change Photo' : 'Upload Photo') }}
+                      <input
+                        ref="fileInput"
+                        type="file"
+                        accept="image/jpeg,image/png,image/gif,image/webp"
+                        class="hidden"
+                        @change="handleFileSelect"
+                      />
+                    </label>
+                    <span class="text-xs text-surface-400">JPEG, PNG, GIF or WebP (max 5 MB)</span>
+                  </div>
+
+                  <!-- URL fallback -->
+                  <details class="mt-3" :open="false">
+                    <summary class="text-xs text-surface-400 cursor-pointer hover:text-surface-600 select-none">Or paste an image URL</summary>
+                    <input
+                      v-model="form.imageUrl"
+                      type="url"
+                      class="input-field mt-2"
+                      placeholder="https://example.com/room.jpg"
+                    />
+                  </details>
                 </div>
 
                 <div v-if="formError" class="flex items-start gap-2 text-sm text-red-700 bg-red-50 rounded-xl p-3 border border-red-200">

@@ -20,9 +20,10 @@ public class AuthFilter implements Filter {
         "/api/auth/logout"
     );
 
-    // Public for GET only (browsing rooms)
+    // Public for GET only (browsing rooms + viewing uploaded images)
     private static final Set<String> PUBLIC_GET_PATHS = Set.of(
-        "/api/rooms"
+        "/api/rooms",
+        "/api/uploads"
     );
 
     @Override
@@ -78,6 +79,7 @@ public class AuthFilter implements Filter {
             ("DELETE".equals(method) && path.matches(".*/api/rooms/\\d+$")) ||
             path.matches(".*/api/reservations/\\d+/approve$") ||
             path.matches(".*/api/reservations/\\d+/reject$") ||
+            path.contains("/api/upload/") ||
             (path.contains("/equipment") && (method.equals("POST") || method.equals("PUT") || method.equals("DELETE")))) {
 
             if (!"admin".equals(user.getRole())) {

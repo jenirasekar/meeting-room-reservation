@@ -79,6 +79,17 @@ export const checkinAPI = {
   checkin(reservationId) { return api.post(`/checkin/${reservationId}`) }
 }
 
+// ---- Upload ----
+export const uploadAPI = {
+  roomImage(file) {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.post('/upload/room-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+  }
+}
+
 // ---- Admin ----
 export const adminAPI = {
   stats() { return api.get('/admin/stats') }

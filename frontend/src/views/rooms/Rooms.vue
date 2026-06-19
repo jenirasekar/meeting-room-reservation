@@ -55,7 +55,7 @@ const filteredRooms = () => {
           </p>
           <!-- Search bar -->
           <div class="relative max-w-md">
-            <AppIcon icon="search" :size="18" class="absolute left-4 top-1/2 -translate-y-1/2 text-surface-400" />
+            <AppIcon icon="search" :size="18" class="absolute left-4 top-1/2 -translate-y-1/2 text-surface-400 z-10 pointer-events-none" />
             <input
               v-model="searchQuery"
               type="text"

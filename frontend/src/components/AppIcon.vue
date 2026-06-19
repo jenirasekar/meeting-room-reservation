@@ -3,7 +3,7 @@ import {
   Building, Users, Calendar, Clock, Check, X, ChevronLeft, ChevronRight, ChevronDown,
   Plus, Pencil, Trash2, LogOut, ShieldCheck, BarChart3, Filter, Search, MapPin,
   Mail, Lock, User, Menu, AlertCircle, CheckCircle, Info, Star, Home, Settings,
-  ArrowLeft, ArrowRight, RefreshCw, MoreVertical, Eye, Sparkles, Smile,
+  ArrowLeft, ArrowRight, RefreshCw, MoreVertical, Eye, Sparkles, Smile, Upload,
 } from 'lucide-vue-next'
 
 const props = defineProps({
@@ -49,6 +49,7 @@ const icons = {
   eye:                Eye,
   sparkles:           Sparkles,
   'emoji-happy':      Smile,
+  upload:             Upload,
 }
 
 const IconComponent = icons[props.icon] || icons['exclamation-circle']

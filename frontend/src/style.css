@@ -266,7 +266,9 @@
      STATUS DOTS
      ========================================== */
 
-  .status-dot {
+  .status-dot,
+  .status-dot-available,
+  .status-dot-unavailable {
     display: inline-block;
     width: 0.5rem;
     height: 0.5rem;
