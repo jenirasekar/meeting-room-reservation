@@ -53,6 +53,12 @@ const routes = [
     meta: { admin: true }
   },
   {
+    path: '/admin/users',
+    name: 'AdminUsers',
+    component: () => import('../views/admin/AdminUsers.vue'),
+    meta: { admin: true }
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('../views/NotFound.vue')

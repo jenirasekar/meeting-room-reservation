@@ -40,6 +40,7 @@ const navLinks = [
   { path: '/admin', label: 'Dashboard', icon: 'chart-bar', show: () => auth.isAdmin, exact: true },
   { path: '/admin/rooms', label: 'Manage Rooms', icon: 'settings', show: () => auth.isAdmin },
   { path: '/admin/reservations', label: 'Manage Bookings', icon: 'check-circle', show: () => auth.isAdmin },
+  { path: '/admin/users', label: 'Manage Users', icon: 'users', show: () => auth.isAdmin },
 ]
 </script>
 

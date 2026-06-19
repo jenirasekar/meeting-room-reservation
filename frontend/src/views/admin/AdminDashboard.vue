@@ -12,6 +12,7 @@ onMounted(() => {
 
 const statCards = [
   { key: 'total_rooms', label: 'Total Rooms', icon: 'building', color: 'from-primary-500 to-primary-600', iconBg: 'bg-primary-100', iconColor: 'text-primary-600' },
+  { key: 'total_users', label: 'Total Users', icon: 'users', color: 'from-violet-500 to-violet-600', iconBg: 'bg-violet-100', iconColor: 'text-violet-600' },
   { key: 'reservations_today', label: 'Bookings Today', icon: 'calendar', color: 'from-emerald-500 to-emerald-600', iconBg: 'bg-emerald-100', iconColor: 'text-emerald-600' },
   { key: 'pending_count', label: 'Pending Approval', icon: 'clock', color: 'from-amber-500 to-amber-600', iconBg: 'bg-amber-100', iconColor: 'text-amber-600' },
   { key: 'checkins_today', label: 'Check-ins Today', icon: 'check-circle', color: 'from-blue-500 to-blue-600', iconBg: 'bg-blue-100', iconColor: 'text-blue-600' },
@@ -27,7 +28,7 @@ const statCards = [
 
     <!-- Loading -->
     <div v-if="store.loading">
-      <SkeletonLoader variant="stats" :count="4" />
+      <SkeletonLoader variant="stats" :count="5" />
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <SkeletonLoader variant="card" :count="2" />
       </div>
@@ -36,7 +37,7 @@ const statCards = [
     <!-- Stats -->
     <template v-else-if="store.stats">
       <!-- Stat cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         <div
           v-for="stat in statCards"
           :key="stat.key"

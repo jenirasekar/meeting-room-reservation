@@ -92,7 +92,12 @@ export const uploadAPI = {
 
 // ---- Admin ----
 export const adminAPI = {
-  stats() { return api.get('/admin/stats') }
+  stats() { return api.get('/admin/stats') },
+  // User management
+  listUsers() { return api.get('/admin/users') },
+  getUser(id) { return api.get(`/admin/users/${id}`) },
+  updateUser(id, data) { return api.put(`/admin/users/${id}`, data) },
+  deleteUser(id) { return api.delete(`/admin/users/${id}`) }
 }
 
 export default api

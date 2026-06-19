@@ -14,6 +14,7 @@ public class AdminStatsServlet extends HttpServlet {
     private final RoomDAO roomDAO = new RoomDAO();
     private final ReservationDAO reservationDAO = new ReservationDAO();
     private final CheckinDAO checkinDAO = new CheckinDAO();
+    private final UserDAO userDAO = new UserDAO();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -22,6 +23,7 @@ public class AdminStatsServlet extends HttpServlet {
 
         JsonObject stats = new JsonObject();
         stats.addProperty("total_rooms", roomDAO.count());
+        stats.addProperty("total_users", userDAO.count());
         stats.addProperty("reservations_today", reservationDAO.countToday());
         stats.addProperty("pending_count", reservationDAO.countByStatus("pending"));
         stats.addProperty("approved_count", reservationDAO.countByStatus("approved"));

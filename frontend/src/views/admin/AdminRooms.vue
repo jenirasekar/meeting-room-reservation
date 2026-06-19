@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoomsStore } from '../../stores/rooms'
 import { equipmentAPI, uploadAPI } from '../../api'
 import { useToastStore } from '../../stores/toast'
@@ -7,6 +7,16 @@ import AppIcon from '../../components/AppIcon.vue'
 
 const roomsStore = useRoomsStore()
 const toast = useToastStore()
+
+const searchQuery = ref('')
+const filteredRooms = computed(() => {
+  if (!searchQuery.value.trim()) return roomsStore.rooms
+  const q = searchQuery.value.toLowerCase()
+  return roomsStore.rooms.filter(r =>
+    r.name.toLowerCase().includes(q) ||
+    (r.location && r.location.toLowerCase().includes(q))
+  )
+})
 
 const showForm = ref(false)
 const editingRoom = ref(null)
