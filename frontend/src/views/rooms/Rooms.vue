@@ -1,15 +1,20 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useRoomsStore } from '../../stores/rooms'
+import { useAuthStore } from '../../stores/auth'
 import RoomCard from '../../components/RoomCard.vue'
 import SkeletonLoader from '../../components/SkeletonLoader.vue'
 import AppIcon from '../../components/AppIcon.vue'
 
+const router = useRouter()
 const roomsStore = useRoomsStore()
+const auth = useAuthStore()
 
 const capacityFilter = ref('')
 const statusFilter = ref('')
 const searchQuery = ref('')
+const dismissBanner = ref(false)
 
 onMounted(() => {
   roomsStore.fetchRooms()
@@ -62,6 +67,51 @@ const filteredRooms = () => {
               class="w-full pl-11 pr-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-400/50 backdrop-blur-sm transition-all text-sm"
               placeholder="Search rooms by name, location..."
             />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Unauthenticated banner -->
+    <div
+      v-if="!auth.isLoggedIn && !dismissBanner"
+      class="bg-gradient-to-r from-primary-600 via-primary-700 to-accent-700"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0 mt-0.5">
+              <AppIcon icon="sparkles" :size="18" class="text-white" />
+            </div>
+            <div>
+              <p class="text-white font-semibold text-sm sm:text-base">
+                Sign in to start booking rooms
+              </p>
+              <p class="text-primary-200 text-xs sm:text-sm mt-0.5">
+                Create an account or log in to reserve meeting rooms, manage your bookings, and more.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0 sm:ml-auto">
+            <button
+              @click="router.push('/login')"
+              class="px-4 py-2 rounded-xl bg-white text-primary-700 text-sm font-semibold hover:bg-primary-50 transition-colors shadow-sm"
+            >
+              Sign In
+            </button>
+            <button
+              @click="router.push('/register')"
+              class="px-4 py-2 rounded-xl bg-white/15 text-white text-sm font-medium border border-white/20 hover:bg-white/25 transition-colors"
+            >
+              Create Account
+            </button>
+            <button
+              @click="dismissBanner = true"
+              class="ml-2 p-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+              title="Dismiss"
+            >
+              <AppIcon icon="x-mark" :size="16" />
+            </button>
           </div>
         </div>
       </div>
