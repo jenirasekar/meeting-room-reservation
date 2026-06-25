@@ -15,6 +15,32 @@ const error = ref("");
 const loading = ref(false);
 const shakeForm = ref(false);
 
+const demoAccounts = [
+  {
+    label: "Admin",
+    icon: "shield-check",
+    username: "admin",
+    password: "admin123",
+    role: "Administrator",
+    color: "primary",
+  },
+  {
+    label: "User",
+    icon: "user",
+    username: "user",
+    password: "user123",
+    role: "Regular User",
+    color: "emerald",
+  },
+];
+
+function fillDemo(demo) {
+  error.value = "";
+  shakeForm.value = false;
+  username.value = demo.username;
+  password.value = demo.password;
+}
+
 async function handleLogin() {
   error.value = "";
   shakeForm.value = false;
@@ -122,7 +148,33 @@ async function handleLogin() {
           </button>
         </form>
 
-        <p class="text-sm text-center text-surface-500 mt-6">
+        <!-- Demo Accounts -->
+        <div class="mt-6 pt-5 border-t border-surface-200/60">
+          <p class="text-xs text-center text-surface-400 font-medium mb-3 tracking-wide uppercase">
+            Try Demo Accounts
+          </p>
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              v-for="demo in demoAccounts"
+              :key="demo.username"
+              type="button"
+              class="demo-account-btn"
+              :class="demo.color === 'primary' ? 'demo-account-primary' : 'demo-account-emerald'"
+              @click="fillDemo(demo)"
+              :disabled="loading"
+            >
+              <span class="demo-account-avatar" :class="demo.color === 'primary' ? 'bg-primary-100 text-primary-600' : 'bg-emerald-100 text-emerald-600'">
+                <AppIcon :icon="demo.icon" :size="14" />
+              </span>
+              <span class="demo-account-info">
+                <span class="demo-account-label">{{ demo.label }}</span>
+                <span class="demo-account-role">{{ demo.role }}</span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <p class="text-sm text-center text-surface-500 mt-5">
           Don't have an account?
           <router-link to="/register" class="text-primary-600 hover:text-primary-700 font-semibold transition-colors">
             Create one
@@ -132,3 +184,67 @@ async function handleLogin() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.demo-account-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  cursor: pointer;
+  transition:
+    border-color 150ms,
+    box-shadow 150ms,
+    transform 150ms;
+  text-align: left;
+}
+.demo-account-primary:hover {
+  border-color: #c7d2fe;
+  box-shadow: 0 2px 12px rgba(99, 102, 241, 0.1);
+}
+.demo-account-emerald:hover {
+  border-color: #a7f3d0;
+  box-shadow: 0 2px 12px rgba(16, 185, 129, 0.1);
+}
+.demo-account-btn:active {
+  transform: scale(0.98);
+}
+.demo-account-btn:disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.demo-account-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.5rem;
+  flex-shrink: 0;
+}
+
+.demo-account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.demo-account-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1;
+}
+
+.demo-account-role {
+  font-size: 0.6875rem;
+  font-weight: 400;
+  color: #94a3b8;
+  line-height: 1;
+}
+</style>
